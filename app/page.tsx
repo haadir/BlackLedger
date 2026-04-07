@@ -1,3 +1,6 @@
+import DecodedTitle from "@/components/decoded-title";
+import GlobeSection from "@/components/globe-section";
+
 const PHASES = [
   { id: "00", name: "DISCUSS", desc: "gather context · surface assumptions" },
   { id: "01", name: "PLAN", desc: "decompose · sequence · verify backwards" },
@@ -43,9 +46,7 @@ export default function Home() {
           <p className="text-[11px] uppercase tracking-[0.4em] text-zinc-600">
             ╱╱ a private ledger for things that should not exist
           </p>
-          <h1 className="mt-6 font-mono text-5xl font-light leading-[1.05] tracking-tight text-zinc-100 sm:text-7xl">
-            BLACK<span className="text-zinc-500">·</span>LEDGER
-          </h1>
+          <DecodedTitle />
           <p className="mt-6 max-w-xl text-sm leading-relaxed text-zinc-500">
             an opaque system. inputs become artifacts. artifacts become signal.
             signal becomes shipped. nothing is forgotten and nothing is loud.
@@ -82,6 +83,8 @@ export default function Home() {
             ))}
           </ol>
         </section>
+
+        <GlobeSection />
 
         {/* footer */}
         <footer className="mt-auto pt-24 text-[10px] uppercase tracking-[0.3em] text-zinc-700">
