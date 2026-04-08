@@ -1,94 +1,65 @@
+import { Terminal } from "lucide-react";
 import DecodedTitle from "@/components/decoded-title";
 import GlobeSection from "@/components/globe-section";
+import WorkflowSection from "@/components/workflow-section";
 
-const PHASES = [
-  { id: "00", name: "DISCUSS", desc: "gather context · surface assumptions" },
-  { id: "01", name: "PLAN", desc: "decompose · sequence · verify backwards" },
-  { id: "02", name: "EXECUTE", desc: "atomic commits · checkpointed state" },
-  { id: "03", name: "VERIFY", desc: "goal-backward audit · UAT · nyquist" },
-  { id: "04", name: "REVIEW", desc: "code · security · ui · integration" },
-  { id: "05", name: "SHIP", desc: "pr · merge · archive" },
-];
+const NODE_COUNT = 15;
+const CONNECTION_COUNT = 24;
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black font-mono text-zinc-300 selection:bg-zinc-200 selection:text-black">
-      {/* grid background */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-          maskImage:
-            "radial-gradient(ellipse at center, black 40%, transparent 75%)",
-        }}
-      />
-      {/* vignette */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.06),transparent_60%)]"
-      />
+    <div className="relative min-h-screen w-full bg-black font-mono text-zinc-300 selection:bg-green-400 selection:text-black">
+      {/* sticky terminal navbar */}
+      <nav className="sticky top-0 z-50 border-b border-green-500/20 bg-black/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded border border-green-500/30 bg-green-500/10 p-2">
+              <Terminal className="h-5 w-5 text-green-400" />
+            </div>
+            <div>
+              <h1 className="font-mono text-base tracking-wider text-green-400 sm:text-lg">
+                BLACKLEDGER
+              </h1>
+              <p className="hidden font-mono text-xs text-green-500/60 sm:block">
+                Sentiment-Driven Predictive Intelligence System
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 font-mono text-xs sm:gap-6">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+              <span className="text-green-400">OPERATIONAL</span>
+            </div>
+            <div className="hidden text-green-500/60 sm:block">
+              <span className="text-green-400">{NODE_COUNT}</span> NODES
+            </div>
+            <div className="hidden text-green-500/60 sm:block">
+              <span className="text-green-400">{CONNECTION_COUNT}</span>{" "}
+              CONNECTIONS
+            </div>
+          </div>
+        </div>
+      </nav>
 
-      <main className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-8 py-16 sm:px-12 sm:py-24">
-        {/* header */}
-        <header className="flex items-center justify-between text-[11px] uppercase tracking-[0.25em] text-zinc-500">
-          <span className="flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            blackledger // online
-          </span>
-          <span>v0.0.1 · 2026.04</span>
-        </header>
-
+      <main className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-5 py-12 sm:px-12 sm:py-24">
         {/* title */}
-        <section className="mt-24 sm:mt-32">
-          <p className="text-[11px] uppercase tracking-[0.4em] text-zinc-600">
-            ╱╱ a private ledger for things that should not exist
+        <section className="">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-600 sm:text-[11px] sm:tracking-[0.4em]">
+            ╱╱ a private ledger
           </p>
           <DecodedTitle />
           <p className="mt-6 max-w-xl text-sm leading-relaxed text-zinc-500">
-            an opaque system. inputs become artifacts. artifacts become signal.
-            signal becomes shipped. nothing is forgotten and nothing is loud.
+            inputs become artifacts. artifacts become signal. signal ships.
           </p>
         </section>
 
-        {/* workflow */}
-        <section className="mt-24 sm:mt-32">
-          <div className="mb-8 flex items-center gap-4 text-[11px] uppercase tracking-[0.25em] text-zinc-600">
-            <span>workflow</span>
-            <span className="h-px flex-1 bg-zinc-800" />
-            <span>6 phases</span>
-          </div>
-
-          <ol className="divide-y divide-zinc-900 border-y border-zinc-900">
-            {PHASES.map((phase, i) => (
-              <li
-                key={phase.id}
-                className="group grid grid-cols-[auto_1fr_auto] items-center gap-6 px-2 py-5 transition-colors hover:bg-zinc-950"
-              >
-                <span className="text-xs tabular-nums text-zinc-700 group-hover:text-zinc-500">
-                  {phase.id}
-                </span>
-                <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-6">
-                  <span className="text-sm tracking-[0.2em] text-zinc-200">
-                    {phase.name}
-                  </span>
-                  <span className="text-xs text-zinc-600">{phase.desc}</span>
-                </div>
-                <span className="text-xs text-zinc-700 group-hover:text-zinc-400">
-                  {i === PHASES.length - 1 ? "∎" : "→"}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </section>
+        <WorkflowSection />
 
         <GlobeSection />
 
         {/* footer */}
-        <footer className="mt-auto pt-24 text-[10px] uppercase tracking-[0.3em] text-zinc-700">
-          <div className="flex items-center justify-between">
+        <footer className="mt-auto pt-16 text-[9px] uppercase tracking-[0.25em] text-zinc-700 sm:pt-24 sm:text-[10px] sm:tracking-[0.3em]">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <span>// no telemetry</span>
             <span>// no audience</span>
             <span>// no exit</span>

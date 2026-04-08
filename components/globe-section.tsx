@@ -1,6 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { GlobeConfig, Position } from "@/components/ui/globe";
 
 const World = dynamic(
@@ -52,8 +55,26 @@ const sampleArcs: Position[] = [
 ];
 
 export default function GlobeSection() {
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
+      gsap.from(".globe-reveal", {
+        opacity: 0,
+        y: 30,
+        duration: 0.9,
+        ease: "power3.out",
+        stagger: 0.15,
+        scrollTrigger: { trigger: ref.current, start: "top 75%" },
+      });
+    }, ref);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative mt-32 sm:mt-40">
+    <section ref={ref} className="relative mt-20 sm:mt-40">
       {/* full-bleed black backdrop that hides the page grid behind the globe.
           extends past the section edges and fades top/bottom for seamless blend. */}
       <div
@@ -75,26 +96,32 @@ export default function GlobeSection() {
         </div>
 
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-mono text-3xl font-light leading-tight text-zinc-100 sm:text-5xl">
+          <h2 className="globe-reveal font-mono text-2xl font-light leading-tight text-zinc-100 sm:text-5xl">
             the world speaks.
             <br />
             <span className="text-zinc-500">we listen first.</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-zinc-500">
-            BlackLedger continuously ingests the freshest world news — wires,
-            filings, market microstructure, and geopolitical chatter — and
-            distills it into world-class predictive signal. every arc on the
-            globe is a story being read, scored, and fed forward into the
-            ledger before the rest of the room has finished its coffee.
+          <p className="globe-reveal mx-auto mt-5 max-w-xl text-sm leading-relaxed text-zinc-500 sm:mt-6">
+            <span className="hidden sm:inline">
+              BlackLedger continuously ingests the freshest world news — wires,
+              filings, market microstructure, and geopolitical chatter — and
+              distills it into world-class predictive signal. every arc on the
+              globe is a story being read, scored, and fed forward into the
+              ledger before the rest of the room has finished its coffee.
+            </span>
+            <span className="sm:hidden">
+              every arc is a story being read, scored, and fed forward into the
+              ledger.
+            </span>
           </p>
-          <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[11px] uppercase tracking-[0.25em] text-zinc-600">
-            <li>// 2.4M sources monitored</li>
-            <li>// sub-second classification</li>
-            <li>// forecasts ranked, never averaged</li>
+          <ul className="globe-reveal mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] uppercase tracking-[0.2em] text-zinc-600 sm:mt-8 sm:gap-x-6 sm:text-[11px] sm:tracking-[0.25em]">
+            <li>// 2.4M sources</li>
+            <li>// sub-second class.</li>
+            <li className="hidden sm:list-item">// forecasts ranked, never averaged</li>
           </ul>
         </div>
 
-        <div className="relative mx-auto mt-12 aspect-square w-full max-w-[1100px]">
+        <div className="globe-reveal relative mx-auto mt-8 aspect-square w-full max-w-[1100px] sm:mt-12">
           {/* radial vignette so the globe edges dissolve into pure black */}
           <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,transparent_58%,#000_85%)]" />
           <World globeConfig={globeConfig} data={sampleArcs} />
