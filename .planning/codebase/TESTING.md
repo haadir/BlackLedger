@@ -1,138 +1,88 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-04-06
+**Analysis Date:** 2026-04-07
 
-## Test Framework
+## Current State: No Test Framework
 
-**Runner:**
-- Not configured - no test runner installed or configured
-- No Jest, Vitest, or other test framework in `package.json`
-- No test scripts defined in `package.json`
+**There is no automated testing set up in this project.** This is an honest baseline, not an oversight to paper over.
 
-**Assertion Library:**
-- Not applicable - no testing framework installed
+Verified against `package.json` (2026-04-07):
 
-**Run Commands:**
+- No `jest`, `vitest`, `@testing-library/*`, `playwright`, `@playwright/test`, `cypress`, `@cypress/*`, `mocha`, `chai`, `ava`, `node:test` runner config, `happy-dom`, or `jsdom` in `dependencies` or `devDependencies`
+- No `test`, `test:*`, `e2e`, or `coverage` script in `package.json` — the only scripts are:
+  ```json
+  "dev":   "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint":  "eslint"
+  ```
+- No `jest.config.*`, `vitest.config.*`, `playwright.config.*`, `cypress.config.*`, or `__tests__/` directory in the repo
+- No `*.test.ts(x)` or `*.spec.ts(x)` files committed
+
+## What Counts as "Verification" Today
+
+Until a test runner is added, these are the only guardrails:
+
+1. **TypeScript strict mode** (`tsconfig.json` — `"strict": true`). Type errors surface during `next build` and in the editor.
+2. **ESLint with `eslint-config-next/core-web-vitals` + `eslint-config-next/typescript`** (`eslint.config.mjs`). Run:
+   ```bash
+   npm run lint
+   ```
+3. **Production build** as a smoke test:
+   ```bash
+   npm run build
+   ```
+   Catches type errors, missing imports, invalid Server/Client Component boundaries, and bad `next/dynamic` usage.
+4. **Manual in-browser verification** via `npm run dev` on `http://localhost:3000`. This is currently the primary way to validate:
+   - `DecodedTitle` scramble animation and SSR hydration match (`components/decoded-title.tsx`)
+   - `GlobeSection` three.js/`three-globe` rendering and `next/dynamic` `{ ssr: false }` boundary (`components/globe-section.tsx`, `components/ui/globe.tsx`)
+   - `@xyflow/react` node rendering (`components/workflow/nodes.tsx`)
+   - Tailwind v4 class output and theme tokens
+
+## Pre-Merge Checklist (Until Tests Exist)
+
+Run these locally before committing any non-trivial change:
+
 ```bash
-npm run lint              # Run ESLint checks (only testing-like tool available)
-npm run dev               # Development server
-npm run build             # Build application
-npm run start             # Production server
+npm run lint      # ESLint (Next core web vitals + TS rules)
+npm run build     # Full type-check + Next.js production build
+npm run dev       # Visual smoke test in the browser
 ```
 
-## Test File Organization
+A change is not "done" until all three pass.
 
-**Location:**
-- No test files exist in the codebase
-- No `*.test.ts`, `*.test.tsx`, `*.spec.ts`, or `*.spec.tsx` files in `/app` directory
-- Test files would need to be added (co-location or separate directory not yet established)
+## When Adding a Test Framework
 
-**Naming:**
-- Not applicable - no testing convention established
+If and when tests are introduced, the recommended shape for this stack (Next.js 16 App Router, React 19, Tailwind v4) is:
 
-**Structure:**
-```
-[No test structure defined]
-```
+**Unit / component tests — Vitest + React Testing Library**
+- `vitest` + `@vitejs/plugin-react` + `@testing-library/react` + `@testing-library/jest-dom` + `jsdom` (or `happy-dom`)
+- Colocate tests next to source: `components/decoded-title.test.tsx` alongside `components/decoded-title.tsx`
+- Add scripts: `"test": "vitest"`, `"test:run": "vitest run"`, `"test:coverage": "vitest run --coverage"`
+- Mock `next/dynamic` and any `three`/`@react-three/fiber` imports — they do not render in `jsdom`. Prefer testing logic-only components (`DecodedTitle` text output, `PHASES` rendering in `app/page.tsx`) and leave WebGL surfaces for E2E.
 
-## Test Structure
+**End-to-end tests — Playwright**
+- `@playwright/test`
+- `playwright.config.ts` at the repo root
+- `e2e/` directory for specs
+- Add scripts: `"e2e": "playwright test"`, `"e2e:ui": "playwright test --ui"`
+- Use E2E to cover the things unit tests cannot: globe rendering, scramble animation progressing to final text, `next/dynamic` `{ ssr: false }` boundary, and hydration with no console errors
 
-**Suite Organization:**
-```
-Not applicable - testing not yet implemented
-```
+**Things to specifically test when the framework lands:**
 
-**Patterns:**
-- No setup/teardown patterns established
-- No assertion patterns established
-- No test organization patterns present
-
-## Mocking
-
-**Framework:**
-- Not applicable - no testing framework available for mocking
-
-**Patterns:**
-```
-Not applicable
-```
-
-**What to Mock:**
-- Not defined - no testing patterns established
-
-**What NOT to Mock:**
-- Not defined - no testing patterns established
-
-## Fixtures and Factories
-
-**Test Data:**
-- Not applicable - no test fixtures defined
-
-**Location:**
-- No `__fixtures__`, `fixtures/`, or test data directories exist
+| Target | File | Why |
+|--------|------|-----|
+| SSR/CSR hydration match | `components/decoded-title.tsx` | Deterministic initial state is load-bearing — any drift re-introduces a hydration warning |
+| `next/dynamic` `{ ssr: false }` | `components/globe-section.tsx` | Regression here crashes the server with `window is not defined` |
+| `useEffect` cleanup | `components/decoded-title.tsx`, `components/ui/globe.tsx` (`Rig`) | Timers (`setInterval`, `setTimeout`) and `requestAnimationFrame` must all be cleared on unmount — easy to break silently |
+| `cn()` class merging | `lib/utils.ts` | Trivially unit-testable; covers the `clsx` + `tailwind-merge` contract |
+| `buttonVariants` | `components/ui/button.tsx` | Snapshot the class strings for each `variant`/`size` combo |
+| Route renders without error | `app/page.tsx` | Smoke test via Playwright — load `/`, assert no console errors, assert `BLACK·LEDGER` appears after scramble settles |
 
 ## Coverage
 
-**Requirements:**
-- No coverage requirements enforced
-- No coverage configuration detected
-
-**View Coverage:**
-```
-Not applicable - no test framework configured
-```
-
-## Test Types
-
-**Unit Tests:**
-- Not implemented - no unit tests present
-- Would apply to: component logic, utility functions, hooks
-
-**Integration Tests:**
-- Not implemented - no integration tests present
-- Would apply to: page rendering, component interactions
-
-**E2E Tests:**
-- Not configured - no Cypress, Playwright, or similar tool installed
-
-## Next Steps for Adding Tests
-
-**Recommended Approach:**
-1. Install test framework: Vitest (lighter) or Jest (more features)
-   - `npm install --save-dev vitest @vitest/ui` (or Jest alternative)
-2. Install React testing utilities: `@testing-library/react`, `@testing-library/jest-dom`
-3. Create test configuration file: `vitest.config.ts` or `jest.config.ts`
-4. Add test script to `package.json`: `"test": "vitest"`
-
-**Suggested Test File Location:**
-- Co-locate with source: `app/page.test.tsx` next to `app/page.tsx`
-- Or separate directory: `__tests__/app/page.test.tsx`
-
-**Example Test Pattern (if testing framework added):**
-```typescript
-// Would follow Testing Library conventions with React 19 and Next.js 16
-import { render, screen } from '@testing-library/react';
-import Home from '@/app/page';
-
-describe('Home Page', () => {
-  it('renders the home page', () => {
-    render(<Home />);
-    expect(screen.getByText(/get started/i)).toBeInTheDocument();
-  });
-});
-```
-
-## Current Quality Assurance
-
-**Available Tools:**
-- ESLint with Next.js and TypeScript configs - catches code quality issues
-- TypeScript type checking - enforced via `noEmit: true` in build process
-- Next.js built-in validation - image optimization, link checking
-
-**Manual Testing:**
-- Development server: `npm run dev` for manual browser testing
-- Build validation: `npm run build` catches TypeScript errors and Next.js issues
+No coverage tooling is configured and no target is enforced. Do not claim a coverage number in PRs until the tooling lands.
 
 ---
 
-*Testing analysis: 2026-04-06*
+*Testing analysis: 2026-04-07*

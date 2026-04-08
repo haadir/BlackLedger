@@ -3,8 +3,8 @@ import DecodedTitle from "@/components/decoded-title";
 import GlobeSection from "@/components/globe-section";
 import WorkflowSection from "@/components/workflow-section";
 
-const NODE_COUNT = 15;
-const CONNECTION_COUNT = 24;
+const NODE_COUNT = 16;
+const CONNECTION_COUNT = 25;
 
 export default function Home() {
   return (

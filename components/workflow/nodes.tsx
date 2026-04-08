@@ -4,6 +4,7 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import {
   Activity,
   Bot,
+  Brain,
   CheckCircle2,
   Cpu,
   Crosshair,
@@ -18,6 +19,7 @@ import {
 type AgentData = { label: string; description: string; status: string };
 type ApiData = { label: string; service: string; status: string; latency: string };
 type GrokData = { label: string; model: string; status: string; tokensProcessed: string };
+type ClaudeData = { label: string; model: string; status: string; tokensProcessed: string; reasoning?: string };
 type SignalData = { label: string; description: string };
 type Prediction = { symbol: string; action: "PUT" | "CALL" | string; confidence: number; target?: string };
 type PredictionData = { label: string; confidence: string; predictions: Prediction[] };
@@ -94,6 +96,42 @@ export function GrokNode({ data }: NodeProps) {
       </div>
       <Handle type="target" position={Position.Left} className="h-3 w-3 border-2 border-amber-300 bg-amber-500" />
       <Handle type="source" position={Position.Right} className="h-3 w-3 border-2 border-amber-300 bg-amber-500" />
+    </div>
+  );
+}
+
+export function ClaudeNode({ data }: NodeProps) {
+  const d = data as unknown as ClaudeData;
+  return (
+    <div className="min-w-[240px] rounded-lg border-2 border-indigo-400/60 bg-black shadow-lg shadow-indigo-500/30">
+      <div className="flex items-center gap-2 border-b border-indigo-400/40 bg-indigo-950/60 px-3 py-2">
+        <Brain className="h-4 w-4 text-indigo-300" />
+        <span className="font-mono text-xs uppercase tracking-wider text-indigo-200">Claude · Reasoner</span>
+      </div>
+      <div className="p-3">
+        <div className="mb-1 font-mono text-sm text-white">{d.label}</div>
+        <div className="mb-3 font-mono text-xs text-indigo-300/70">Model: {d.model}</div>
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <Cpu className="h-3 w-3 animate-pulse text-indigo-300" />
+            <span className="font-mono text-xs uppercase text-indigo-300">{d.status}</span>
+          </div>
+          <div className="rounded border border-indigo-400/30 bg-indigo-500/10 px-2 py-1">
+            <div className="font-mono text-xs text-indigo-200/80">
+              Tokens: <span className="text-indigo-100">{d.tokensProcessed}</span>
+            </div>
+          </div>
+          {d.reasoning && (
+            <div className="rounded border border-indigo-400/20 bg-indigo-500/5 px-2 py-1">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-indigo-300/70">
+                {d.reasoning}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <Handle type="target" position={Position.Left} className="h-3 w-3 border-2 border-indigo-200 bg-indigo-400" />
+      <Handle type="source" position={Position.Right} className="h-3 w-3 border-2 border-indigo-200 bg-indigo-400" />
     </div>
   );
 }

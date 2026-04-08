@@ -1,94 +1,97 @@
 # External Integrations
 
-**Analysis Date:** 2026-04-06
+**Analysis Date:** 2026-04-07
 
 ## APIs & External Services
 
 **Font Services:**
-- Google Fonts API - Provides Geist and Geist_Mono font families
-  - SDK/Client: Integrated via `next/font/google`
-  - Configuration: Fonts loaded with Latin subset in `app/layout.tsx`
-  - Auth: Public API, no credentials required
+- Google Fonts (via `next/font/google`)
+  - SDK/Client: `next/font/google` in `app/layout.tsx`
+  - Fonts: `Geist`, `Geist_Mono` (Latin subset)
+  - Auth: None (public, fetched at build time)
 
-**Template & Deployment:**
-- Vercel Platform - Deployment and hosting (referenced in template but not yet integrated)
-  - Documentation: Links in `app/page.tsx` for Vercel deployment
-  - SDK/Client: Not installed; referenced for future deployment
+**News / Market Data (aspirational, not wired):**
+- Copy in `components/globe-section.tsx` describes ingesting "wires, filings, market microstructure, and geopolitical chatter" and references a Grok model in `components/workflow/nodes.tsx` (`GrokNode`).
+- Status: UI-only. No SDKs, API clients, or network calls for these services exist in the codebase.
 
 ## Data Storage
 
 **Databases:**
-- Not detected - No database client or ORM installed
-- Status: Not yet integrated into project
+- Not detected - No ORM, driver, or connection client installed
 
 **File Storage:**
-- Local filesystem only - Static assets served from `public/` directory via Next.js
-- No cloud storage services detected
+- Local filesystem only
+  - `public/` - Static assets served by Next.js
+  - `data/globe.json` - Country polygon feature collection consumed by `components/ui/globe.tsx` via `hexPolygonsData`
 
 **Caching:**
-- Next.js built-in caching
-  - Static page generation cache via App Router
-  - No external cache service (Redis, Memcached) detected
+- Next.js built-in (App Router RSC/data cache)
+- No external cache service
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- Not implemented - No authentication framework detected
-- Status: Authentication not yet integrated
+- Not implemented - No auth library, middleware, or session handling present
+- `components/ui/button.tsx` wraps `@base-ui/react/button` but there is no login flow
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- Not detected - No error tracking service (Sentry, Rollbar, etc.) installed
+- Not detected (no Sentry/Rollbar/etc.)
 
 **Logs:**
-- Console-based only (default Node.js/browser console)
-- No centralized logging service configured
+- Default console only; no structured logger
+
+**Analytics:**
+- Not detected; no `@vercel/analytics` or similar
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Vercel Platform (recommended, not yet configured)
-  - Alternative: Self-hosted on any Node.js 18+ server
-  - Build command: `npm run build` (via Next.js CLI)
-  - Start command: `npm start` (via Next.js CLI)
+- No deployment config committed (no `vercel.json`, no Dockerfile, no GitHub Actions workflows)
+- Next.js defaults target Vercel or any Node 18+ host
 
 **CI Pipeline:**
-- Not detected - No CI/CD configuration found
-- Status: Not yet configured
+- None detected in repo (`.github/` not present)
 
 ## Environment Configuration
 
 **Required env vars:**
-- None currently required - Project runs with defaults
-- Future requirements: Will depend on database, API, and auth integrations
+- None. App runs with zero environment configuration.
 
 **Secrets location:**
-- `.env` file - Not created yet (reserved for future use)
-- `.env.local` - Not created yet (would override .env in development)
-- Pattern: Standard Next.js environment variable loading from root-level .env files
+- No `.env*` files exist in repo root
+- No secret stores referenced
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- None detected - No API routes for webhooks implemented
+- None - No route handlers under `app/api/` (directory does not exist)
 
 **Outgoing:**
-- None detected - No external webhook calls in codebase
+- None - No `fetch`/SDK calls to external services in checked-in source
+
+## Client-Side External Assets
+
+**WebGL / 3D:**
+- `three-globe` loads hex polygon geometry from local `data/globe.json`; no remote tile or map provider is contacted
+- `@react-three/fiber` `Canvas` runs entirely client-side; `GlobeSection` uses `next/dynamic(..., { ssr: false })` to skip SSR
+
+**Workflow Graph:**
+- `@xyflow/react` node components in `components/workflow/nodes.tsx` are pure presentational cards (`AgentNode`, `APINode`, `GrokNode`, `SignalNode`, `PredictionNode`). Statuses, latencies, and predictions come from props - no live data source is wired.
 
 ## External Dependencies Status
 
 **Current State:**
-- Minimal external integrations - Project is in initial Next.js template state
-- All external connectivity is read-only (fonts via Google Fonts API only)
-- No transactional or stateful external services configured
+- Marketing / landing surface only. The sole live external dependency is Google Fonts fetched by Next.js at build time.
+- All 3D, workflow, and "signal" UIs are driven by in-repo static data or component props.
 
 **Ready for Integration:**
-- Database: No ORM installed; suggest Prisma, Drizzle, or native database clients
-- Authentication: No auth library installed; suggest NextAuth.js, Clerk, or Auth0
-- API calls: Can be added via fetch() or axios in API routes (`app/api/`) or server components
-- File uploads: Next.js Server Actions and API routes support file handling
+- Database: choose ORM (Prisma, Drizzle) and add a driver
+- Auth: NextAuth.js / Clerk / Auth0 etc.
+- Data ingest: implement under `app/api/**/route.ts` (directory not yet created)
+- Telemetry: add Sentry and/or Vercel Analytics
 
 ---
 
-*Integration audit: 2026-04-06*
+*Integration audit: 2026-04-07*

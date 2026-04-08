@@ -15,6 +15,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   AgentNode,
   APINode,
+  ClaudeNode,
   GrokNode,
   PredictionNode,
   SignalNode,
@@ -23,6 +24,7 @@ import {
 const nodeTypes = {
   agent: AgentNode,
   api: APINode,
+  claude: ClaudeNode,
   grok: GrokNode,
   prediction: PredictionNode,
   signal: SignalNode,
@@ -50,7 +52,8 @@ const initialNodes: Node[] = [
   { id: "10", type: "agent", position: { x: 400, y: 420 }, data: { label: "Technical Analysis", status: "processing", description: "MA · RSI · MACD · Aroon" } },
   { id: "11", type: "agent", position: { x: 400, y: 620 }, data: { label: "Oil Correlation Engine", status: "processing", description: "Brent/WTI vs Tech Sector" } },
   { id: "12", type: "agent", position: { x: 400, y: 820 }, data: { label: "Pattern Matcher", status: "processing", description: "TF-IDF historical similarity" } },
-  { id: "13", type: "grok", position: { x: 750, y: 470 }, data: { label: "Grok AI Processor", model: "grok-2-beta", status: "processing", tokensProcessed: "2.8M" } },
+  { id: "13", type: "grok", position: { x: 50, y: 1090 }, data: { label: "Grok / X Sentiment", model: "grok-3", status: "streaming", tokensProcessed: "1.4M" } },
+  { id: "16", type: "claude", position: { x: 750, y: 470 }, data: { label: "Claude Reasoner", model: "claude-opus-4-6", status: "reasoning", tokensProcessed: "3.2M", reasoning: "plan · tool · evaluate · replan" } },
   { id: "14", type: "signal", position: { x: 1080, y: 380 }, data: { label: "Signal Alignment", status: "active", description: "4/4 Signal Consensus Model" } },
   {
     id: "15",
@@ -91,12 +94,13 @@ const initialEdges: Edge[] = [
   { id: "e7-11", source: "7", target: "11", animated: true, style: green },
   { id: "e3-12", source: "3", target: "12", animated: true, style: green },
   { id: "e7-12", source: "7", target: "12", animated: true, style: green },
-  { id: "e9-13", source: "9", target: "13", animated: true, style: amber },
-  { id: "e10-13", source: "10", target: "13", animated: true, style: amber },
-  { id: "e11-13", source: "11", target: "13", animated: true, style: amber },
-  { id: "e12-13", source: "12", target: "13", animated: true, style: amber },
+  { id: "e13-9", source: "13", target: "9", animated: true, style: amber },
+  { id: "e9-16", source: "9", target: "16", animated: true, style: amber },
+  { id: "e10-16", source: "10", target: "16", animated: true, style: amber },
+  { id: "e11-16", source: "11", target: "16", animated: true, style: amber },
+  { id: "e12-16", source: "12", target: "16", animated: true, style: amber },
   { id: "e8-14", source: "8", target: "14", animated: true, style: green },
-  { id: "e13-14", source: "13", target: "14", animated: true, style: pink },
+  { id: "e16-14", source: "16", target: "14", animated: true, style: pink },
   { id: "e14-15", source: "14", target: "15", animated: true, style: pinkThick },
 ];
 
@@ -143,7 +147,7 @@ const mobileStages: MobileStage[] = [
   {
     tag: "01 · ingest",
     title: "Market Data APIs",
-    meta: "7 live sources",
+    meta: "8 live sources",
     color: "border-cyan-400/40 text-cyan-300",
     details: [
       { label: "Yahoo Finance", value: "price & options · 18ms" },
@@ -153,6 +157,7 @@ const mobileStages: MobileStage[] = [
       { label: "Reddit / WSB", value: "retail sentiment · 38ms" },
       { label: "Geopolitical Feed", value: "cnn · reuters · al jazeera · 52ms" },
       { label: "CBOE", value: "vix & options chain · 15ms" },
+      { label: "Grok / X", value: "x sentiment · grok-3" },
     ],
   },
   {
@@ -168,13 +173,14 @@ const mobileStages: MobileStage[] = [
     ],
   },
   {
-    tag: "03 · ai",
-    title: "Grok AI Processor",
-    meta: "grok-2-beta",
-    color: "border-amber-400/40 text-amber-300",
+    tag: "03 · reason",
+    title: "Claude Reasoner",
+    meta: "claude-opus-4-6",
+    color: "border-indigo-400/40 text-indigo-300",
     details: [
-      { label: "Model", value: "grok-2-beta" },
-      { label: "Tokens processed", value: "2.8M" },
+      { label: "Model", value: "claude-opus-4-6" },
+      { label: "Loop", value: "plan · tool · evaluate · replan" },
+      { label: "Tokens processed", value: "3.2M" },
       { label: "Inputs", value: "4/4 agent streams" },
     ],
   },
@@ -331,7 +337,8 @@ export default function WorkflowSection() {
         <div className="mt-6 hidden flex-wrap justify-center gap-x-6 gap-y-2 text-[10px] uppercase tracking-[0.25em] text-zinc-600 md:flex">
           <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-cyan-400" />api sources</span>
           <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-purple-400" />processing agents</span>
-          <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber-400" />grok ai hub</span>
+          <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber-400" />grok x sentiment</span>
+          <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-indigo-400" />claude reasoner</span>
           <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-orange-400" />signal alignment</span>
           <span><span className="mr-2 inline-block h-2 w-2 rounded-full bg-red-500" />predictions</span>
         </div>
